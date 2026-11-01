@@ -1,0 +1,30 @@
+name: Agent request
+
+on:
+  workflow_dispatch:
+    inputs:
+      title:
+        description: Short title for the request
+        required: true
+        type: string
+      body:
+        description: What the agent should do, with context and how to verify
+        required: true
+        type: string
+
+permissions:
+  issues: write
+  contents: read
+
+jobs:
+  open-issue:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Open an issue for the agent
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          TITLE: ${{ inputs.title }}
+          BODY: ${{ inputs.body }}
+        run: |
+          printf '%s\n\n@yechao666\n' "$BODY" > /tmp/body.md
+          gh issue create --repo "$GITHUB_REPOSITORY" --title "$TITLE" --body-file /tmp/body.md
